@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT : EVOLUTION</title>
+    <style>
+        /* =================================================================
+           CSS - PROJECT : EVOLUTION (UI/UX PREMIUM SYSTEM)
+           ================================================================ */
+        :root {
+            --bg-deep: #030712;
+            --bg-card: rgba(13, 20, 38, 0.7);
+            --bg-glass: rgba(10, 15, 30, 0.65);
+            --border-glass: rgba(59, 130, 246, 0.15);
+            --border-glow: rgba(59, 130, 246, 0.4);
+
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.6);
+            --electric: #00f0ff;
+            --accent-gold: #f59e0b;
+            --accent-gold-glow: rgba(245, 158, 11, 0.4);
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+
+            --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-cinematic: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.light-theme {
+            --bg-deep: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-glass: rgba(241, 245, 249, 0.8);
+            --border-glass: rgba(59, 130, 246, 0.25);
+            --border-glow: rgba(59, 130, 246, 0.5);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            cursor: default;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-glow);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Canvas Background / Particles */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Cinematic Intro Overlay */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #0a1128 0%, #030712 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
+        }
+
+        #intro-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .intro-title {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--electric) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px var(--primary-glow);
+            margin-bottom: 2.5rem;
+            animation: pulseGlow 3s infinite alternate;
+            text-align: center;
+        }
+
+        .cyber-btn {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0, 240, 255, 0.1));
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn:hover {
+            border-color: var(--electric);
+            box-shadow: 0 0 30px var(--primary-glow), inset 0 0 15px rgba(0, 240, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .cyber-btn:active {
+            transform: translateY(0);
+        }
+
+        /* App Container */
+        #app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #app-container.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Header / RPG Quick Status Bar */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 1.25rem 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .app-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .rpg-stats-bar {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .rpg-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .rpg-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .rpg-stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .xp-bar-container {
+            width: 150px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--electric));
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Dashboard Grid Menu */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .dash-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .dash-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-glow);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .dash-card:hover::after {
+            opacity: 1;
+        }
+
+        .dash-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+        }
+
+        .dash-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .dash-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Modules View Container */
+        .module-view {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin-bottom: 3rem;
+        }
+
+        .module-view.active {
+            display: block;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .module-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .back-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* Sub-modules / Tabs */
+        .tab-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0, 240, 255, 0.1));
+            border-color: var(--primary);
+            color: var(--text-main);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Workout Mode Active UI */
+        .workout-session-box {
+            background: rgba(3, 7, 18, 0.6);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .exercise-name-display {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--electric);
+        }
+
+        .exercise-meta-display {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            margin: 1.5rem 0;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px var(--accent-gold-glow);
+        }
+
+        .workout-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* RPG Stats Dashboard View */
+        .rpg-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .rpg-card {
+            background: rgba(10, 15, 30, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rpg-card-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .rpg-card-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .rpg-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .rpg-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Routine Lists */
+        .routine-day-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition-smooth);
+        }
+
+        .routine-day-card:hover {
+            border-color: var(--border-glow);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .routine-day-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--electric);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .exercise-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .exercise-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Progress Module & Chart */
+        .progress-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .cyber-input {
+            background: rgba(3, 7, 18, 0.7);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .cyber-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .chart-container {
+            background: rgba(3, 7, 18, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 1.5rem;
+            height: 300px;
+            position: relative;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .chart-bar-wrapper {
+            flex: 1;
+            min-width: 50px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .chart-bar {
+            width: 100%;
+            background: linear-gradient(180deg, var(--electric), var(--primary));
+            border-radius: 6px 6px 0 0;
+            transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .chart-bar:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .chart-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Objectives Module */
+        .objectives-input-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .objective-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+
+        .objective-item.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+            border-color: rgba(0,255,255,0.1);
+        }
+
+        .objective-checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-glass);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .objective-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--electric);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .objective-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Mentality & Quotes Module */
+        .quote-display-card {
+            background: linear-gradient(135deg, rgba(13, 20, 38, 0.9), rgba(5, 10, 25, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .quote-text {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quote-card-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .quote-card-item:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+
+        /* Media / Music / Motivation Modules */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .media-card {
+            background: rgba(10, 15, 30, 0.6);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition-smooth);
+        }
+
+        .media-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .media-thumb {
+            width: 100%;
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .media-thumb::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(3, 7, 18, 0.8));
+        }
+
+        .media-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .media-title-text {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        /* Local Music Player */
+        .local-player-box {
+            background: rgba(3, 7, 18, 0.7);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .player-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .player-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition-smooth);
+        }
+
+        .player-btn:hover {
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .playlist-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .playlist-item {
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .playlist-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--primary);
+        }
+
+        /* Settings Module */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .setting-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            padding: 1.5rem;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cyber-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .cyber-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .3s;
+            border-radius: 26px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+            border-color: var(--electric);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid var(--border-glow);
+            backdrop-filter: blur(12px);
+            color: var(--text-main);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+            max-width: 350px;
+        }
+
+        .toast.success { border-color: var(--electric); }
+        .toast.gold { border-color: var(--accent-gold); }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 20px rgba(59,130,246,0.5); }
+            100% { text-shadow: 0 0 40px rgba(0,240,255,0.8), 0 0 60px rgba(59,130,246,0.4); }
+        }
+
+        /* Responsive Adjustments */
+        @media(max-width: 768px) {
+            #app-container { padding: 1rem; }
+            .app-header { flex-direction: column; gap: 1rem; text-align: center; }
+            .rpg-stats-bar { justify-content: center; gap: 1rem; }
+            .module-view { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HTML PARTICLE CANVAS -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- CINEMATIC INTRO OVERLAY -->
+    <div id="intro-overlay">
+        <div class="intro-title">PROJECT : EVOLUTION</div>
+        <button class="cyber-btn" id="enter-btn">ENTRAR</button>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container">
+
+        <!-- HEADER / RPG QUICK STATUS -->
+        <header class="app-header">
+            <div class="app-logo">PROJECT : EVOLUTION</div>
+            <div class="rpg-stats-bar">
+                <div class="rpg-stat-item">
+                    <span class="rpg-stat-label">Nivel</span>
+                    <span class="rpg-stat-value" id="header-level">1</span>
+                </div>
+                <div class="rpg-stat-item">
+                    <span class="rpg-stat-label">XP (<span id="header-xp-text">0/100</span>)</span>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar-fill" id="header-xp-fill"></div>
+                    </div>
+                </div>
+                <div class="rpg-stat-item">
+                    <span class="rpg-stat-label">Racha</span>
+                    <span class="rpg-stat-value" id="header-streak">0 días</span>
+                </div>
+                <div class="rpg-stat-item">
+                    <span class="rpg-stat-label">Completados</span>
+                    <span class="rpg-stat-value" id="header-total-workouts">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD MENU (RPG SYSTEM) -->
+        <main id="dashboard-view" class="dashboard-grid">
+            <div class="dash-card" onclick="app.openModule('routine')">
+                <div class="dash-icon">🏋</div>
+                <div class="dash-title">Rutina</div>
+                <div class="dash-desc">Sistemas activos de Calistenia y Gimnasio con ejecución y temporizadores de serie.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('progress')">
+                <div class="dash-icon">📈</div>
+                <div class="dash-title">Progreso</div>
+                <div class="dash-desc">Métricas corporales avanzadas, gráficos analíticos y evolución de rendimiento.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('objectives')">
+                <div class="dash-icon">🎯</div>
+                <div class="dash-title">Objetivos</div>
+                <div class="dash-desc">Gestión interactiva de metas diarias, semanales y de largo plazo.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('mentality')">
+                <div class="dash-icon">🧠</div>
+                <div class="dash-title">Mentalidad</div>
+                <div class="dash-desc">Biblioteca de principios de disciplina, enfoque y fortaleza mental inquebrantable.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('phrases')">
+                <div class="dash-icon">💬</div>
+                <div class="dash-title">Frases</div>
+                <div class="dash-desc">Colección curada de frases de disciplina con sistema de favoritos.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('music')">
+                <div class="dash-icon">🎵</div>
+                <div class="dash-title">Música</div>
+                <div class="dash-desc">Frecuencias de entrenamiento YouTube y reproductor de biblioteca local MP3.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('motivation')">
+                <div class="dash-icon">🎥</div>
+                <div class="dash-title">Motivación</div>
+                <div class="dash-desc">Visuales cinematográficos y transmisiones de alta intensidad.</div>
+            </div>
+            <div class="dash-card" onclick="app.openModule('settings')">
+                <div class="dash-icon">⚙</div>
+                <div class="dash-title">Configuración</div>
+                <div class="dash-desc">Personalización del sistema, rendimiento, efectos visuales y modo inmersivo.</div>
+            </div>
+        </main>
+
+        <!-- ================= MODULE VIEWS ================= -->
+
+        <!-- 1. RUTINAS MODULE -->
+        <div id="module-routine" class="module-view">
+            <div class="module-header">
+                <div class="module-title">🏋 Sistemas de Entrenamiento</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="app.switchRoutineTab('calisthenics')">🏠 Calistenia</button>
+                <button class="tab-btn" onclick="app.switchRoutineTab('gym')">🏋 Gym</button>
+                <button class="tab-btn" onclick="app.switchRoutineTab('rpg')">📊 Estadísticas RPG</button>
+            </div>
+
+            <!-- Calistenia Tab -->
+            <div id="tab-calisthenics" class="tab-content active">
+                <div id="calisthenics-container"></div>
+            </div>
+
+            <!-- Gym Tab -->
+            <div id="tab-gym" class="tab-content">
+                <div id="gym-container"></div>
+            </div>
+
+            <!-- RPG Stats Tab -->
+            <div id="tab-rpg" class="tab-content">
+                <div class="rpg-dashboard-grid">
+                    <div class="rpg-card">
+                        <span class="rpg-card-title">LEVEL</span>
+                        <span class="rpg-card-value" id="rpg-lvl-val">1</span>
+                        <div class="rpg-progress-bar"><div class="rpg-progress-fill" id="rpg-lvl-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="rpg-card">
+                        <span class="rpg-card-title">BODY (Fuerza)</span>
+                        <span class="rpg-card-value" id="rpg-body-val">0</span>
+                        <div class="rpg-progress-bar"><div class="rpg-progress-fill" id="rpg-body-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="rpg-card">
+                        <span class="rpg-card-title">DISCIPLINE</span>
+                        <span class="rpg-card-value" id="rpg-disc-val">0</span>
+                        <div class="rpg-progress-bar"><div class="rpg-progress-fill" id="rpg-disc-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="rpg-card">
+                        <span class="rpg-card-title">CONSISTENCY</span>
+                        <span class="rpg-card-value" id="rpg-cons-val">0 días</span>
+                        <div class="rpg-progress-bar"><div class="rpg-progress-fill" id="rpg-cons-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVE WORKOUT MODAL / VIEW (Embedded inside or overlay) -->
+        <div id="module-active-workout" class="module-view">
+            <div class="module-header">
+                <div class="module-title" id="active-workout-title">Modo Entrenamiento Activo</div>
+                <button class="back-btn" onclick="app.quitActiveWorkout()">Abandonar</button>
+            </div>
+            <div class="workout-session-box" id="workout-session-box">
+                <!-- Dynamic Content injected via JS -->
+            </div>
+        </div>
+
+        <!-- 2. PROGRESO MODULE -->
+        <div id="module-progress" class="module-view">
+            <div class="module-header">
+                <div class="module-title">📈 Seguimiento de Progreso Corporal</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+
+            <div class="progress-form-grid">
+                <div class="input-group">
+                    <label>Fecha</label>
+                    <input type="date" id="prog-date" class="cyber-input">
+                </div>
+                <div class="input-group">
+                    <label>Peso (kg)</label>
+                    <input type="number" step="0.1" id="prog-weight" class="cyber-input" placeholder="Ej. 70.5">
+                </div>
+                <div class="input-group">
+                    <label>Brazo (cm)</label>
+                    <input type="number" step="0.1" id="prog-arm" class="cyber-input" placeholder="Ej. 35">
+                </div>
+                <div class="input-group">
+                    <label>Pecho (cm)</label>
+                    <input type="number" step="0.1" id="prog-chest" class="cyber-input" placeholder="Ej. 100">
+                </div>
+                <div class="input-group">
+                    <label>Pierna (cm)</label>
+                    <input type="number" step="0.1" id="prog-leg" class="cyber-input" placeholder="Ej. 55">
+                </div>
+                <div class="input-group">
+                    <label>Cintura (cm)</label>
+                    <input type="number" step="0.1" id="prog-waist" class="cyber-input" placeholder="Ej. 80">
+                </div>
+            </div>
+            <div style="margin-bottom: 2rem;">
+                <button class="cyber-btn" onclick="app.saveProgressRecord()">Guardar Registro Corporal</button>
+            </div>
+
+            <h3 style="margin-bottom: 1rem; font-size: 1.2rem; color: var(--electric);">Historial de Peso (kg)</h3>
+            <div class="chart-container" id="weight-chart">
+                <!-- Rendered bars -->
+            </div>
+        </div>
+
+        <!-- 3. OBJETIVOS MODULE -->
+        <div id="module-objectives" class="module-view">
+            <div class="module-header">
+                <div class="module-title">🎯 Objetivos y Metas</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+            <div class="objectives-input-row">
+                <input type="text" id="new-objective-input" class="cyber-input" placeholder="Nuevo objetivo del sistema..." style="flex: 1;">
+                <button class="cyber-btn" onclick="app.addObjective()">Añadir</button>
+            </div>
+            <div id="objectives-list-container"></div>
+        </div>
+
+        <!-- 4. MENTALIDAD MODULE -->
+        <div id="module-mentality" class="module-view">
+            <div class="module-header">
+                <div class="module-title">🧠 Principios de Mentalidad</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+            <div class="quote-display-card">
+                <div class="quote-text" id="featured-mentality-text">"La disciplina no es hacer lo que quieres cuando quieres; es hacer lo que se debe hacer incluso cuando no hay motivación."</div>
+                <div class="quote-author">PROJECT : EVOLUTION CORE</div>
+            </div>
+            <div class="quotes-grid" id="mentality-grid"></div>
+        </div>
+
+        <!-- 5. FRASES MODULE -->
+        <div id="module-phrases" class="module-view">
+            <div class="module-header">
+                <div class="module-title">💬 Frases y Favoritos</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="app.switchPhrasesTab('all')">Todas las Frases</button>
+                <button class="tab-btn" onclick="app.switchPhrasesTab('favorites')">⭐ Favoritas (<span id="fav-count">0</span>)</button>
+            </div>
+            <div class="quotes-grid" id="phrases-grid"></div>
+        </div>
+
+        <!-- 6. MÚSICA MODULE -->
+        <div id="module-music" class="module-view">
+            <div class="module-header">
+                <div class="module-title">🎵 Centro de Audio y Frecuencias</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="app.switchMusicTab('youtube')">YouTube Frecuencias</button>
+                <button class="tab-btn" onclick="app.switchMusicTab('local')">Biblioteca Local MP3</button>
+            </div>
+
+            <!-- YouTube Tab -->
+            <div id="tab-music-yt" class="tab-content active">
+                <div class="media-grid" id="youtube-music-grid"></div>
+            </div>
+
+            <!-- Local MP3 Tab -->
+            <div id="tab-music-local" class="tab-content">
+                <div class="local-player-box">
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="file" id="local-audio-input" multiple accept="audio/mp3,audio/*" class="cyber-input" style="width: 100%;">
+                    </div>
+                    <div id="current-playing-info" style="text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--electric); margin-bottom: 1rem;">Ninguna canción seleccionada</div>
+                    <audio id="audio-element"></audio>
+                    <div class="player-controls-row">
+                        <button class="player-btn" onclick="app.localPrevTrack()">⏮</button>
+                        <button class="player-btn" id="play-pause-btn" onclick="app.localTogglePlay()">▶</button>
+                        <button class="player-btn" onclick="app.localNextTrack()">⏭</button>
+                    </div>
+                    <div class="playlist-container" id="playlist-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. MOTIVACIÓN MODULE -->
+        <div id="module-motivation" class="module-view">
+            <div class="module-header">
+                <div class="module-title">🎥 Archivos de Motivación</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+            <div class="media-grid" id="motivation-grid"></div>
+        </div>
+
+        <!-- 8. CONFIGURACIÓN MODULE -->
+        <div id="module-settings" class="module-view">
+            <div class="module-header">
+                <div class="module-title">⚙ Configuración del Sistema</div>
+                <button class="back-btn" onclick="app.closeModules()">Volver al Panel</button>
+            </div>
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <div>
+                        <h4>Tema Claro / Oscuro</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Alternar estética visual</p>
+                    </div>
+                    <label class="cyber-toggle">
+                        <input type="checkbox" id="setting-theme" onchange="app.toggleTheme(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-card">
+                    <div>
+                        <h4>Partículas de Fondo</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Efectos de red neuronal</p>
+                    </div>
+                    <label class="cyber-toggle">
+                        <input type="checkbox" id="setting-particles" checked onchange="app.toggleParticles(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-card">
+                    <div>
+                        <h4>Modo Rendimiento</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Optimizar animaciones y recursos</p>
+                    </div>
+                    <label class="cyber-toggle">
+                        <input type="checkbox" id="setting-performance" onchange="app.togglePerformance(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-card">
+                    <div>
+                        <h4>Efectos de Audio / UI</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Sonidos sintéticos de confirmación</p>
+                    </div>
+                    <label class="cyber-toggle">
+                        <input type="checkbox" id="setting-sound" checked onchange="app.toggleSound(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div style="margin-top: 3rem; text-align: center;">
+                <button class="cyber-btn" onclick="app.resetSystemData()" style="border-color: #ef4444; color: #ef4444;">Restablecer Datos del Sistema</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- =================================================================
+       JAVASCRIPT - CORE SYSTEM LOGIC
+       ================================================================ -->
+    <script>
+        /* --- CONSTANTS & DATA DATASETS --- */
+        const CALISTHENICS_ROUTINE = [
+            {
+                day: "DÍA 1 — TREN SUPERIOR 1",
+                exercises: [
+                    { name: "Flexiones explosivas", sets: 4, reps: "8-10", rest: 180, tut: "0-20 seg" },
+                    { name: "Dominadas", sets: 4, reps: "8-12", rest: 180, tut: "0-20 seg" },
+                    { name: "Flexiones diamante", sets: 3, reps: "8-12", rest: 120, tut: "0-20 seg" },
+                    { name: "Vuelos laterales unilaterales con mochila", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Remo invertido en mesa", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Patada de tríceps unilateral con mochila", sets: 2, reps: "12-15", rest: 60, tut: "30-60 seg" },
+                    { name: "Levantamiento de piernas en barra", sets: 3, reps: "8-12", rest: 60, tut: "30-60 seg" }
+                ]
+            },
+            {
+                day: "DÍA 2 — TREN INFERIOR",
+                exercises: [
+                    { name: "Sentadillas pausadas (2 segundos abajo)", sets: 4, reps: "8-10", rest: 180, tut: "20-40 seg" },
+                    { name: "Estocadas", sets: 3, reps: "8-10", rest: 120, tut: "20-40 seg" },
+                    { name: "Curl nórdico", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Hip Thrust con mochila", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Elevación de talones con mochila", sets: 2, reps: "8-12", rest: 60, tut: "30-60 seg" },
+                    { name: "Crunches", sets: 3, reps: "8-12", rest: 60, tut: "30-60 seg" }
+                ]
+            },
+            {
+                day: "DÍA 3 — TREN SUPERIOR 2",
+                exercises: [
+                    { name: "Chin Ups", sets: 4, reps: "8-10", rest: 180, tut: "0-20 seg" },
+                    { name: "Flexiones pausadas (2 segundos abajo)", sets: 3, reps: "8-10", rest: 180, tut: "20-40 seg" },
+                    { name: "Remo unilateral con mochila", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Flexiones inclinadas", sets: 3, reps: "8-12", rest: 120, tut: "20-40 seg" },
+                    { name: "Curl de bíceps unilateral con mochila", sets: 3, reps: "8-12", rest: 120, tut: "30-60 seg" },
+                    { name: "Press francés unilateral con mochila", sets: 2, reps: "8-12", rest: 60, tut: "30-60 seg" },
+                    { name: "Levantamiento de piernas en barra a cada lado", sets: 2, reps: "8-10", rest: 60, tut: "30-60 seg" }
+                ]
+            },
+            {
+                day: "DÍA 4 — TREN INFERIOR",
+                exercises: [
+                    { name: "Sentadilla pistola", sets: 4, reps: "8-10", rest: 180, tut: "0-20 seg" },
+                    { name: "Burpees", sets: 3, reps: "8-12", rest: 180, tut: "20-40 seg" },
+                    { name: "Sentadilla búlgara", sets: 3, reps: "8-10", rest: 180, tut: "20-40 seg" },
+                    { name: "Curl nórdico invertido", sets: 2, reps: "8-10", rest: 120, tut: "20-40 seg" },
+                    { name: "Elevación de talones con mochila", sets: 2, reps: "8-12", rest: 60, tut: "30-60 seg" },
+                    { name: "Crunches", sets: 2, reps: "8-12", rest: 60, tut: "30-60 seg" }
+                ]
+            }
+        ];
+
+        const GYM_ROUTINE = [
+            {
+                day: "DÍA 1 — PECHO + TRÍCEPS + ABDOMEN",
+                exercises: [
+                    { name: "Press de pecho", sets: 4, reps: "8-12", rest: 150, tut: "20-40 seg" },
+                    { name: "Aperturas con mancuernas", sets: 3, reps: "10-12", rest: 120, tut: "30-60 seg" },
+                    { name: "Fondos", sets: 3, reps: "8-12", rest: 120, tut: "30-60 seg" },
+                    { name: "Extensión de tríceps", sets: 3, reps: "10-15", rest: 90, tut: "30-60 seg" },
+                    { name: "Russian Twist", sets: 3, reps: "15-20", rest: 60, tut: "30-60 seg" }
+                ]
+            },
+            {
+                day: "DÍA 2 — ESPALDA + BÍCEPS",
+                exercises: [
+                    { name: "Dominadas", sets: 4, reps: "8-12", rest: 180, tut: "0-20 seg" },
+                    { name: "Remo inclinado", sets: 4, reps: "8-12", rest: 150, tut: "20-40 seg" },
+                    { name: "Pullover", sets: 3, reps: "10-12", rest: 120, tut: "30-60 seg" },
+                    { name: "Curl martillo", sets: 3, reps: "10-12", rest: 120, tut: "30-60 seg" }
+                ]
+            },
+            {
+                day: "DÍA 3 — HOMBROS + ANTEBRAZOS",
+                exercises: [
+                    { name: "Press militar", sets: 4, reps: "8-12", rest: 150, tut: "20-40 seg" },
+                    { name: "Elevaciones laterales", sets: 4, reps: "12-15", rest: 90, tut: "30-60 seg" },
+                    { name: "Elevaciones posteriores", sets: 3, reps: "12-15", rest: 90, tut: "30-60 seg" },
+                    { name: "Farmer's Walk (Paseo del granjero)", sets: 3, reps: "30-60 seg", rest: 120, tut: "30-60 seg" }
+                ]
+            }
+        ];
+
+        const YOUTUBE_MUSIC_LINKS = [
+            { title: "Frecuencia de Enfoque Profundo Alpha", url: "https://www.youtube.com/watch?v=h2GQVlMkFiE", videoId: "h2GQVlMkFiE" },
+            { title: "Cyberpunk Industrial Workout Mix", url: "https://www.youtube.com/watch?v=M-P4QBt-FWw", videoId: "M-P4QBt-FWw" },
+            { title: "Dark Ambient Discipline Beats", url: "https://www.youtube.com/watch?v=lW9ep22YmlM", videoId: "lW9ep22YmlM" },
+            { title: "Epic RPG Orchestral Combat Theme", url: "https://www.youtube.com/watch?v=M7xx0WejDV4&t=24s", videoId: "M7xx0WejDV4" },
+            { title: "Electronic Focus Core Station", url: "https://www.youtube.com/watch?v=97IS4lznVrI&t=32s", videoId: "97IS4lznVrI" }
+        ];
+
+        const MOTIVATION_VIDEOS = [
+            { title: "THE IRON PATH - Discipline & Resilience", url: "https://www.youtube.com/watch?v=UXbYLom46D4", videoId: "UXbYLom46D4" },
+            { title: "BUILDING THE UNBREAKABLE MIND", url: "https://www.youtube.com/watch?v=5aPCGBgjONw", videoId: "5aPCGBgjONw" },
+            { title: "SYSTEM OVERLOAD - Push Your Limits", url: "https://www.youtube.com/watch?v=sNrHUk3s4MY", videoId: "sNrHUk3s4MY" }
+        ];
+
+        const RAW_QUOTES = [
+            "La disciplina es el puente entre las metas y el logro absoluto.",
+            "No busques motivación cuando la disciplina es tu motor constante.",
+            "Cada repetición cuenta en el registro de tu evolución.",
+            "El dolor de la disciplina pesa gramos; el del arrepentimiento pesa toneladas.",
+            "Construye tu destino con acciones implacables, no con deseos vacíos.",
+            "La victoria pertenece al que resiste un segundo más.",
+            "Tu mente es el núcleo; si cede, todo el sistema colapsa.",
+            "El silencio del esfuerzo diario grita más fuerte que cualquier promesa.",
+            "Domina tu mente y tu cuerpo obedecerá sin condiciones.",
+            "La comodidad es el enemigo silencioso de la grandeza.",
+            "Un sistema fuerte se prueba en la tormenta, no en la calma.",
+            "Haz hoy lo que otros postergan para mañana.",
+            "La excelencia no es un acto aislado, es tu estándar diario.",
+            "El peso en la barra no miente; refleja exactamente tu nivel de compromiso.",
+            "Forja tu carácter cuando nadie esté mirando.",
+            "El verdadero poder reside en el autocontrol absoluto.",
+            "Cada día sin entrenar es un paso atrás en tu evolución.",
+            "La fatiga física es temporal; la gloria del progreso es permanente.",
+            "Sé implacable con tus debilidades y paciente con tu crecimiento.",
+            "El éxito es la suma de pequeñas victorias repetidas sin descanso.",
+            "La tormenta revela de qué material estás hecho.",
+            "No negocies con la pereza; elimínala del sistema.",
+            "La concentración absoluta separa al amateur del maestro.",
+            "Tu único rival legítimo es el reflejo de ayer.",
+            "La voluntad férrea transforma la resistencia en victoria.",
+            "Acepta el desafío, domina la técnica, ejecuta sin vacilar.",
+            "El progreso real ocurre cuando desaparecen las excusas.",
+            "Mantén la mirada en el objetivo final y bloquea toda distracción.",
+            "La persistencia es la única variable que garantiza el resultado.",
+            "Construye una fortaleza interior impenetrable.",
+            "La consistencia vence al talento cuando el talento carece de disciplina.",
+            "Cada gota de sudor es código limpio en tu nuevo sistema físico.",
+            "El liderazgo personal comienza por exigirte más de lo que pides a otros.",
+            "No esperes el momento perfecto; toma el control y créalo.",
+            "La resistencia al cambio es la prueba de que estás evolucionando.",
+            "La mente templada en el fuego no teme a la presión.",
+            "Actúa con propósito; cada decisión esculpe tu futuro.",
+            "El rigor diario es el precio de la maestría.",
+            "Desafía tus límites actuales para expandir tus horizontes.",
+            "La fuerza no viene de lo que puedes hacer, sino de superar lo que creías imposible.",
+            "El enfoque láser es tu mejor herramienta contra el caos externo.",
+            "La autodisciplina es la forma más alta de libertad.",
+            "Cada obstáculo superado incrementa tu capacidad de procesamiento mental.",
+            "La verdadera fuerza es silenciosa, constante e inquebrantable.",
+            "No te detengas cuando estés cansado; detente cuando hayas terminado.",
+            "La claridad mental se obtiene a través de la acción directa.",
+            "Evalúa tus fallos, ajusta el código de tus hábitos, reinicia.",
+            "El compromiso total no admite reservas ni planes de escape.",
+            "Haz de la disciplina tu hábito más innegociable.",
+            "La cima pertenece a los que persisten tras la tormenta.",
+            "Tu evolución está programada por tus elecciones diarias.",
+            "La energía fluye hacia donde diriges tu atención implacable.",
+            "La paciencia estratégica es tan vital como la fuerza bruta.",
+            "Supera el umbral del dolor y descubre tu verdadera capacidad.",
+            "La excelencia es un hábito automático cuando la disciplina es ley.",
+            "No hay atajos hacia la maestría; solo repetición y rigor.",
+            "El carácter se forja en la fricción de la resistencia.",
+            "Mantén el sistema funcionando al 100% bajo cualquier circunstancia.",
+            "La victoria es inevitable para quien rehúsa rendirse.",
+            "La autocrítica constructiva es el compilador de tu crecimiento.",
+            "Define tus métricas de éxito y supéralas cada semana.",
+            "La intensidad sin dirección es ruido; con disciplina es poder.",
+            "Haz que cada segundo de entrenamiento valga en tu estadística vital.",
+            "La cumbre es fría, pero la vista recompensa toda la escalada.",
+            "El control de tus impulsos define tu jerarquía personal.",
+            "Construye cimientos sólidos antes de buscar metas monumentales.",
+            "La perseverancia silenciosa destruye cualquier barrera.",
+            "Tu voluntad es el núcleo del sistema; mantenla optimizada.",
+            "El miedo es solo un error en el sistema que se corrige con acción.",
+            "La disciplina diaria es el código fuente de una vida extraordinaria.",
+            "Avanza con determinación, sin mirar atrás ni dudar.",
+            "El verdadero guerrero encuentra paz en la exigencia extrema.",
+            "Cada día representa una nueva compilación de tu mejor versión.",
+            "La exigencia personal es la única métrica que importa.",
+            "El éxito es el resultado lógico de una disciplina inquebrantable.",
+            "Rompe tus propios récords; compite únicamente contra tu pasado.",
+            "La solidez mental se entrena igual que el tejido muscular.",
+            "Mantén la calma bajo presión y ejecuta con precisión quirúrgica.",
+            "La energía no se desperdicia en quejas; se invierte en resultados.",
+            "El camino de la evolución no admite pasajeros, solo operadores activos.",
+            "La resiliencia es tu escudo contra la adversidad.",
+            "Sube el listón de tus exigencias cada vez que domines un nivel.",
+            "La claridad en tus metas acelera el proceso de evolución.",
+            "El trabajo duro sostenido supera cualquier talento innato.",
+            "La fortaleza de un sistema se mide por su capacidad de recuperación.",
+            "Haz de la resiliencia tu estado predeterminado.",
+            "La determinación firme disuelve cualquier excusa mental.",
+            "El progreso diario, por pequeño que parezca, compone una montaña.",
+            "La autoridad sobre uno mismo es el mayor logro posible.",
+            "Sigue adelante cuando el cuerpo pida pausa; ahí comienza el verdadero crecimiento.",
+            "La precisión en el detalle marca la diferencia entre el éxito y el fracaso.",
+            "La ambición sin disciplina es solo un sueño efímero.",
+            "Forja una disciplina de acero que resista cualquier prueba.",
+            "El dominio del tiempo y el enfoque es el secreto de la cúspide.",
+            "La evolución es un proceso continuo que nunca se detiene.",
+            "Mantén tu sistema limpio, optimizado y enfocado en la meta.",
+            "La fuerza y el honor guían cada paso de tu trayectoria.",
+            "El poder de la voluntad puede reescribir cualquier pronóstico.",
+            "Camina con firmeza hacia tus objetivos sin importar el entorno.",
+            "PROJECT : EVOLUTION - La versión definitiva de ti mismo."
+        ];
+
+        class EvolutionSystem {
+            constructor() {
+                this.state = {
+                    level: 1,
+                    xp: 0,
+                    maxXp: 100,
+                    streak: 0,
+                    totalWorkouts: 0,
+                    lastWorkoutDate: null,
+                    bodyStrength: 10,
+                    discipline: 15,
+                    calisthenicsProgress: {},
+                    gymProgress: {},
+                    progressRecords: [],
+                    objectives: [
+                        { id: 1, text: "Completar protocolo de entrenamiento diario", completed: false },
+                        { id: 2, text: "Mantener hidratación y nutrición limpia", completed: false },
+                        { id: 3, text: "Estudiar conceptos de ingeniería y sistemas (30 min)", completed: false }
+                    ],
+                    favorites: [],
+                    settings: {
+                        theme: 'dark',
+                        particles: true,
+                        performance: false,
+                        sound: true
+                    },
+                    localTracks: []
+                };
+
+                this.activeWorkout = {
+                    mode: null,
+                    dayIndex: null,
+                    exerciseIndex: 0,
+                    currentSet: 1,
+                    timerInterval: null,
+                    secondsLeft: 0,
+                    isResting: false
+                };
+
+                this.currentLocalTrackIndex = 0;
+                this.loadState();
+            }
+
+            loadState() {
+                const saved = localStorage.getItem('project_evolution_state_v1');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.state = { ...this.state, ...parsed };
+                    } catch (e) {
+                        console.error("Error loading state", e);
+                    }
+                }
+                this.checkDailyReset();
+            }
+
+            saveState() {
+                localStorage.setItem('project_evolution_state_v1', JSON.stringify(this.state));
+            }
+
+            checkDailyReset() {
+                const today = new Date().toDateString();
+                if (this.state.lastActiveDate !== today) {
+                    if (this.state.lastActiveDate) {
+                        const lastDate = new Date(this.state.lastActiveDate);
+                        const diffTime = Math.abs(new Date(today) - lastDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays > 2) {
+                            this.state.streak = 0;
+                        }
+                    }
+                    this.state.lastActiveDate = today;
+                    this.state.calisthenicsProgress = {};
+                    this.state.gymProgress = {};
+                    this.saveState();
+                }
+            }
+
+            addXp(amount) {
+                this.state.xp += amount;
+                this.showToast(`+${amount} XP Obtenido`, 'success');
+                this.playSound('success');
+
+                while (this.state.xp >= this.state.maxXp) {
+                    this.state.xp -= this.state.maxXp;
+                    this.state.level += 1;
+                    this.state.maxXp = Math.floor(this.state.maxXp * 1.3);
+                    this.showToast(`¡NIVEL ASCENDIDO! Nivel ${this.state.level}`, 'gold');
+                    this.playSound('levelUp');
+                }
+                this.updateHeaderUI();
+                this.saveState();
+            }
+
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `<span>⚡</span> <div>${message}</div>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(50px)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3500);
+            }
+
+            playSound(type) {
+                if (!this.state.settings.sound) return;
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    if (type === 'success') {
+                        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+                        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.15);
+                    } else if (type === 'levelUp') {
+                        osc.frequency.setValueAtTime(440, ctx.currentTime);
+                        osc.frequency.setValueAtTime(554.37, ctx.currentTime + 0.1);
+                        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.2);
+                        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.5);
+                    } else if (type === 'click') {
+                        osc.frequency.setValueAtTime(800, ctx.currentTime);
+                        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.05);
+                    }
+                } catch(e) {}
+            }
+
+            updateHeaderUI() {
+                document.getElementById('header-level').innerText = this.state.level;
+                document.getElementById('header-xp-text').innerText = `${this.state.xp}/${this.state.maxXp}`;
+                const xpPercent = Math.min(100, (this.state.xp / this.state.maxXp) * 100);
+                document.getElementById('header-xp-fill').style.width = `${xpPercent}%`;
+                document.getElementById('header-streak').innerText = `${this.state.streak} días`;
+                document.getElementById('header-total-workouts').innerText = this.state.totalWorkouts;
+
+                document.getElementById('rpg-lvl-val').innerText = this.state.level;
+                document.getElementById('rpg-lvl-fill').style.width = `${xpPercent}%`;
+                document.getElementById('rpg-body-val').innerText = `${this.state.bodyStrength} pts`;
+                document.getElementById('rpg-body-fill').style.width = `${Math.min(100, this.state.bodyStrength * 2)}%`;
+                document.getElementById('rpg-disc-val').innerText = `${this.state.discipline} pts`;
+                document.getElementById('rpg-disc-fill').style.width = `${Math.min(100, this.state.discipline * 2)}%`;
+                document.getElementById('rpg-cons-val').innerText = `${this.state.streak} días`;
+                document.getElementById('rpg-cons-fill').style.width = `${Math.min(100, this.state.streak * 10)}%`;
+            }
+
+            openModule(moduleName) {
+                this.playSound('click');
+                document.getElementById('dashboard-view').style.display = 'none';
+                document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+
+                const target = document.getElementById(`module-${moduleName}`);
+                if (target) {
+                    target.classList.add('active');
+                    this.renderModuleContent(moduleName);
+                }
+            }
+
+            closeModules() {
+                this.playSound('click');
+                document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+                document.getElementById('dashboard-view').style.display = 'grid';
+                this.updateHeaderUI();
+            }
+
+            renderModuleContent(name) {
+                if (name === 'routine') {
+                    this.renderRoutines();
+                } else if (name === 'progress') {
+                    this.renderProgressChart();
+                } else if (name === 'objectives') {
+                    this.renderObjectives();
+                } else if (name === 'mentality') {
+                    this.renderMentality();
+                } else if (name === 'phrases') {
+                    this.renderPhrases();
+                } else if (name === 'music') {
+                    this.renderMusic();
+                } else if (name === 'motivation') {
+                    this.renderMotivation();
+                } else if (name === 'settings') {
+                    this.renderSettings();
+                }
+            }
+
+            switchRoutineTab(tab) {
+                this.playSound('click');
+                document.querySelectorAll('#module-routine .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#module-routine .tab-content').forEach(c => c.classList.remove('active'));
+
+                if (tab === 'calisthenics') {
+                    document.querySelectorAll('#module-routine .tab-btn')[0].classList.add('active');
+                    document.getElementById('tab-calisthenics').classList.add('active');
+                } else if (tab === 'gym') {
+                    document.querySelectorAll('#module-routine .tab-btn')[1].classList.add('active');
+                    document.getElementById('tab-gym').classList.add('active');
+                } else if (tab === 'rpg') {
+                    document.querySelectorAll('#module-routine .tab-btn')[2].classList.add('active');
+                    document.getElementById('tab-rpg').classList.add('active');
+                }
+            }
+
+            renderRoutines() {
+                const calContainer = document.getElementById('calisthenics-container');
+                calContainer.innerHTML = CALISTHENICS_ROUTINE.map((dayData, dIndex) => `
+                    <div class="routine-day-card">
+                        <div class="routine-day-title">
+                            <span>${dayData.day}</span>
+                            <button class="cyber-btn" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="app.startWorkoutSession('calisthenics', ${dIndex})">Iniciar Día</button>
+                        </div>
+                        ${dayData.exercises.map(ex => `
+                            <div class="exercise-item">
+                                <div class="exercise-info">
+                                    <h4>${ex.name}</h4>
+                                    <p>Series: ${ex.sets} | Reps: ${ex.reps} | Descanso: ${ex.rest}s | TUT: ${ex.tut}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+
+                const gymContainer = document.getElementById('gym-container');
+                gymContainer.innerHTML = GYM_ROUTINE.map((dayData, dIndex) => `
+                    <div class="routine-day-card">
+                        <div class="routine-day-title">
+                            <span>${dayData.day}</span>
+                            <button class="cyber-btn" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="app.startWorkoutSession('gym', ${dIndex})">Iniciar Día</button>
+                        </div>
+                        ${dayData.exercises.map(ex => `
+                            <div class="exercise-item">
+                                <div class="exercise-info">
+                                    <h4>${ex.name}</h4>
+                                    <p>Series: ${ex.sets} | Reps: ${ex.reps} | Descanso: ${ex.rest}s | TUT: ${ex.tut}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+            }
+
+            startWorkoutSession(mode, dayIndex) {
+                this.playSound('click');
+                this.activeWorkout = {
+                    mode: mode,
+                    dayIndex: dayIndex,
+                    exerciseIndex: 0,
+                    currentSet: 1,
+                    isResting: false,
+                    secondsLeft: 0
+                };
+                document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+                document.getElementById('module-active-workout').classList.add('active');
+                this.renderActiveWorkoutStep();
+            }
+
+            renderActiveWorkoutStep() {
+                const routine = this.activeWorkout.mode === 'calisthenics' ? CALISTHENICS_ROUTINE : GYM_ROUTINE;
+                const dayData = routine[this.activeWorkout.dayIndex];
+                const ex = dayData.exercises[this.activeWorkout.exerciseIndex];
+                const box = document.getElementById('workout-session-box');
+
+                document.getElementById('active-workout-title').innerText = `Ejecutando: ${dayData.day}`;
+
+                if (this.activeWorkout.isResting) {
+                    box.innerHTML = `
+                        <div class="exercise-name-display">DESCANSO</div>
+                        <div class="exercise-meta-display">Prepárate para la siguiente serie</div>
+                        <div class="timer-display" id="workout-timer">${this.activeWorkout.secondsLeft}s</div>
+                        <div class="workout-controls">
+                            <button class="cyber-btn" onclick="app.skipRest()">Saltar Descanso</button>
+                        </div>
+                    `;
+                    this.startRestTimer(ex.rest);
+                } else {
+                    box.innerHTML = `
+                        <div class="exercise-name-display">${ex.name}</div>
+                        <div class="exercise-meta-display">Serie ${this.activeWorkout.currentSet} de ${ex.sets} | Reps: ${ex.reps} | TUT: ${ex.tut}</div>
+                        <div style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">Ejercicio ${this.activeWorkout.exerciseIndex + 1} de ${dayData.exercises.length}</div>
+                        <div class="workout-controls">
+                            <button class="cyber-btn" onclick="app.completeSet()">COMPLETAR SERIE</button>
+                        </div>
+                    `;
+                }
+            }
+
+            completeSet() {
+                this.playSound('success');
+                const routine = this.activeWorkout.mode === 'calisthenics' ? CALISTHENICS_ROUTINE : GYM_ROUTINE;
+                const dayData = routine[this.activeWorkout.dayIndex];
+                const ex = dayData.exercises[this.activeWorkout.exerciseIndex];
+
+                if (this.activeWorkout.currentSet < ex.sets) {
+                    this.activeWorkout.currentSet++;
+                    this.activeWorkout.isResting = true;
+                    this.renderActiveWorkoutStep();
+                } else {
+                    if (this.activeWorkout.exerciseIndex < dayData.exercises.length - 1) {
+                        this.activeWorkout.exerciseIndex++;
+                        this.activeWorkout.currentSet = 1;
+                        this.activeWorkout.isResting = true;
+                        this.renderActiveWorkoutStep();
+                    } else {
+                        this.finishWorkoutSession();
+                    }
+                }
+            }
+
+            startRestTimer(seconds) {
+                this.activeWorkout.secondsLeft = seconds;
+                if (this.activeWorkout.timerInterval) clearInterval(this.activeWorkout.timerInterval);
+
+                this.activeWorkout.timerInterval = setInterval(() => {
+                    this.activeWorkout.secondsLeft--;
+                    const timerEl = document.getElementById('workout-timer');
+                    if (timerEl) timerEl.innerText = `${this.activeWorkout.secondsLeft}s`;
+
+                    if (this.activeWorkout.secondsLeft <= 0) {
+                        clearInterval(this.activeWorkout.timerInterval);
+                        this.activeWorkout.isResting = false;
+                        this.showToast("Descanso terminado. Prepárate para la siguiente serie.", "success");
+                        this.renderActiveWorkoutStep();
+                    }
+                }, 1000);
+            }
+
+            skipRest() {
+                if (this.activeWorkout.timerInterval) clearInterval(this.activeWorkout.timerInterval);
+                this.activeWorkout.isResting = false;
+                this.renderActiveWorkoutStep();
+            }
+
+            finishWorkoutSession() {
+                if (this.activeWorkout.timerInterval) clearInterval(this.activeWorkout.timerInterval);
+                this.state.totalWorkouts++;
+                this.state.streak++;
+                this.state.bodyStrength += 5;
+                this.state.discipline += 5;
+                this.addXp(75);
+
+                this.showToast("¡Entrenamiento completado! +75 XP obtenido", "gold");
+                this.closeModules();
+            }
+
+            quitActiveWorkout() {
+                if (this.activeWorkout.timerInterval) clearInterval(this.activeWorkout.timerInterval);
+                this.closeModules();
+            }
+
+            saveProgressRecord() {
+                const date = document.getElementById('prog-date').value || new Date().toISOString().split('T')[0];
+                const weight = parseFloat(document.getElementById('prog-weight').value);
+                const arm = parseFloat(document.getElementById('prog-arm').value) || 0;
+                const chest = parseFloat(document.getElementById('prog-chest').value) || 0;
+                const leg = parseFloat(document.getElementById('prog-leg').value) || 0;
+                const waist = parseFloat(document.getElementById('prog-waist').value) || 0;
+
+                if (!weight) {
+                    this.showToast("Por favor ingresa al menos el peso corporal.", "success");
+                    return;
+                }
+
+                this.state.progressRecords.push({ date, weight, arm, chest, leg, waist });
+                this.state.progressRecords.sort((a,b) => new Date(a.date) - new Date(b.date));
+                this.saveState();
+                this.showToast("Registro corporal guardado con éxito.", "success");
+                this.renderProgressChart();
+            }
+
+            renderProgressChart() {
+                const chart = document.getElementById('weight-chart');
+                const records = this.state.progressRecords;
+
+                if (records.length === 0) {
+                    chart.innerHTML = `<div style="margin: auto; color: var(--text-muted); font-size: 0.9rem;">No hay registros corporales aún. Añade el primero arriba.</div>`;
+                    return;
+                }
+
+                const weights = records.map(r => r.weight);
+                const maxW = Math.max(...weights) * 1.1;
+                const minW = Math.min(...weights) * 0.9;
+                const range = maxW - minW || 1;
+
+                chart.innerHTML = records.map(r => {
+                    const heightPercent = Math.max(15, Math.min(100, ((r.weight - minW) / range) * 100));
+                    return `
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: ${heightPercent}%;" data-tooltip="${r.weight} kg (${r.date})"></div>
+                            <div class="chart-label">${r.date.slice(5)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderObjectives() {
+                const container = document.getElementById('objectives-list-container');
+                if (this.state.objectives.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No hay objetivos activos.</div>`;
+                    return;
+                }
+
+                container.innerHTML = this.state.objectives.map((obj, idx) => `
+                    <div class="objective-item ${obj.completed ? 'completed' : ''}">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <input type="checkbox" class="objective-checkbox" ${obj.completed ? 'checked' : ''} onchange="app.toggleObjective(${idx})">
+                            <span style="font-size: 1rem; font-weight: 500;">${obj.text}</span>
+                        </div>
+                        <button class="back-btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="app.deleteObjective(${idx})">Eliminar</button>
+                    </div>
+                `).join('');
+            }
+
+            addObjective() {
+                const input = document.getElementById('new-objective-input');
+                const text = input.value.trim();
+                if (!text) return;
+
+                this.state.objectives.push({ id: Date.now(), text, completed: false });
+                input.value = '';
+                this.saveState();
+                this.renderObjectives();
+                this.showToast("Objetivo añadido al sistema.", "success");
+            }
+
+            toggleObjective(idx) {
+                this.state.objectives[idx].completed = !this.state.objectives[idx].completed;
+                if (this.state.objectives[idx].completed) {
+                    this.addXp(15);
+                }
+                this.saveState();
+                this.renderObjectives();
+            }
+
+            deleteObjective(idx) {
+                this.state.objectives.splice(idx, 1);
+                this.saveState();
+                this.renderObjectives();
+            }
+
+            renderMentality() {
+                const grid = document.getElementById('mentality-grid');
+                const featured = RAW_QUOTES.slice(0, 12);
+                document.getElementById('featured-mentality-text').innerText = `"${RAW_QUOTES[Math.floor(Math.random() * RAW_QUOTES.length)]}"`;
+
+                grid.innerHTML = featured.map((q, idx) => `
+                    <div class="quote-card-item">
+                        <p style="font-size: 0.95rem; line-height: 1.5; font-weight: 500;">"${q}"</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">PRINCIPIO #${idx + 1}</span>
+                            <button class="back-btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="app.toggleFavoriteQuote(${idx})">${this.state.favorites.includes(idx) ? '⭐ Favorito' : '☆ Guardar'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            switchPhrasesTab(tab) {
+                this.playSound('click');
+                document.querySelectorAll('#module-phrases .tab-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+                this.renderPhrases(tab);
+            }
+
+            renderPhrases(filter = 'all') {
+                const grid = document.getElementById('phrases-grid');
+                document.getElementById('fav-count').innerText = this.state.favorites.length;
+
+                let itemsToRender = RAW_QUOTES.map((q, idx) => ({ text: q, index: idx }));
+                if (filter === 'favorites') {
+                    itemsToRender = itemsToRender.filter(item => this.state.favorites.includes(item.index));
+                }
+
+                if (itemsToRender.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">No hay frases en esta sección.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = itemsToRender.map(item => `
+                    <div class="quote-card-item">
+                        <p style="font-size: 0.95rem; line-height: 1.5;">"${item.text}"</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">FRASE #${item.index + 1}</span>
+                            <button class="back-btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="app.toggleFavoriteQuote(${item.index})">${this.state.favorites.includes(item.index) ? '⭐ Favorito' : '☆ Guardar'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            toggleFavoriteQuote(idx) {
+                this.playSound('click');
+                const pos = this.state.favorites.indexOf(idx);
+                if (pos > -1) {
+                    this.state.favorites.splice(pos, 1);
+                    this.showToast("Frase removida de favoritos.", "success");
+                } else {
+                    this.state.favorites.push(idx);
+                    this.showToast("Frase guardada en favoritos.", "gold");
+                }
+                this.saveState();
+                const activeTabEl = document.querySelector('#module-phrases .tab-btn.active');
+                const isFav = activeTabEl && activeTabEl.innerText.includes('Favoritas');
+                this.renderPhrases(isFav ? 'favorites' : 'all');
+            }
+
+            switchMusicTab(tab) {
+                this.playSound('click');
+                document.querySelectorAll('#module-music .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#module-music .tab-content').forEach(c => c.classList.remove('active'));
+
+                if (tab === 'youtube') {
+                    document.querySelectorAll('#module-music .tab-btn')[0].classList.add('active');
+                    document.getElementById('tab-music-yt').classList.add('active');
+                } else {
+                    document.querySelectorAll('#module-music .tab-btn')[1].classList.add('active');
+                    document.getElementById('tab-music-local').classList.add('active');
+                }
+            }
+
+            renderMusic() {
+                const ytGrid = document.getElementById('youtube-music-grid');
+                ytGrid.innerHTML = YOUTUBE_MUSIC_LINKS.map(item => `
+                    <div class="media-card">
+                        <div class="media-thumb" style="background-image: url('https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg');"></div>
+                        <div class="media-info">
+                            <div class="media-title-text">${item.title}</div>
+                            <a href="${item.url}" target="_blank" class="cyber-btn" style="text-align: center; text-decoration: none; padding: 0.6rem; font-size: 0.85rem;">Escuchar en YouTube</a>
+                        </div>
+                    </div>
+                `).join('');
+
+                const fileInput = document.getElementById('local-audio-input');
+                fileInput.onchange = (e) => {
+                    const files = Array.from(e.target.files);
+                    files.forEach(file => {
+                        const fileUrl = URL.createObjectURL(file);
+                        this.state.localTracks.push({ name: file.name, url: fileUrl });
+                    });
+                    this.saveState();
+                    this.renderLocalPlaylist();
+                    this.showToast(`${files.length} canciones añadidas a la biblioteca.`, "success");
+                };
+
+                this.renderLocalPlaylist();
+            }
+
+            renderLocalPlaylist() {
+                const playlistContainer = document.getElementById('playlist-container');
+                if (this.state.localTracks.length === 0) {
+                    playlistContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">Sube archivos MP3 desde tu dispositivo para reproducirlos aquí.</div>`;
+                    return;
+                }
+
+                playlistContainer.innerHTML = this.state.localTracks.map((track, idx) => `
+                    <div class="playlist-item ${this.currentLocalTrackIndex === idx ? 'active' : ''}" onclick="app.playLocalTrack(${idx})">
+                        <span style="font-size: 0.9rem; font-weight: 500;">🎵 ${track.name}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Reproducir</span>
+                    </div>
+                `).join('');
+            }
+
+            playLocalTrack(idx) {
+                if (idx >= 0 && idx < this.state.localTracks.length) {
+                    this.currentLocalTrackIndex = idx;
+                    const track = this.state.localTracks[idx];
+                    const audio = document.getElementById('audio-element');
+                    audio.src = track.url;
+                    audio.play();
+                    document.getElementById('current-playing-info').innerText = track.name;
+                    document.getElementById('play-pause-btn').innerText = '⏸';
+                    this.renderLocalPlaylist();
+                }
+            }
+
+            localTogglePlay() {
+                const audio = document.getElementById('audio-element');
+                if (this.state.localTracks.length === 0) return;
+
+                if (audio.paused) {
+                    if (!audio.src) {
+                        this.playLocalTrack(0);
+                    } else {
+                        audio.play();
+                        document.getElementById('play-pause-btn').innerText = '⏸';
+                    }
+                } else {
+                    audio.pause();
+                    document.getElementById('play-pause-btn').innerText = '▶';
+                }
+            }
+
+            localNextTrack() {
+                if (this.state.localTracks.length === 0) return;
+                let nextIdx = (this.currentLocalTrackIndex + 1) % this.state.localTracks.length;
+                this.playLocalTrack(nextIdx);
+            }
+
+            localPrevTrack() {
+                if (this.state.localTracks.length === 0) return;
+                let prevIdx = (this.currentLocalTrackIndex - 1 + this.state.localTracks.length) % this.state.localTracks.length;
+                this.playLocalTrack(prevIdx);
+            }
+
+            renderMotivation() {
+                const grid = document.getElementById('motivation-grid');
+                grid.innerHTML = MOTIVATION_VIDEOS.map(item => `
+                    <div class="media-card">
+                        <div class="media-thumb" style="background-image: url('https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg');"></div>
+                        <div class="media-info">
+                            <div class="media-title-text">${item.title}</div>
+                            <a href="${item.url}" target="_blank" class="cyber-btn" style="text-align: center; text-decoration: none; padding: 0.6rem; font-size: 0.85rem;">Ver Archivo Video</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderSettings() {
+                document.getElementById('setting-theme').checked = this.state.settings.theme === 'light';
+                document.getElementById('setting-particles').checked = this.state.settings.particles;
+                document.getElementById('setting-performance').checked = this.state.settings.performance;
+                document.getElementById('setting-sound').checked = this.state.settings.sound;
+            }
+
+            toggleTheme(checkbox) {
+                this.state.settings.theme = checkbox.checked ? 'light' : 'dark';
+                if (checkbox.checked) {
+                    document.body.classList.add('light-theme');
+                } else {
+                    document.body.classList.remove('light-theme');
+                }
+                this.saveState();
+            }
+
+            toggleParticles(checkbox) {
+                this.state.settings.particles = checkbox.checked;
+                this.saveState();
+            }
+
+            togglePerformance(checkbox) {
+                this.state.settings.performance = checkbox.checked;
+                this.saveState();
+            }
+
+            toggleSound(checkbox) {
+                this.state.settings.sound = checkbox.checked;
+                this.saveState();
+            }
+
+            resetSystemData() {
+                if (confirm("¿Estás seguro de restablecer todos los datos del sistema? Se perderá el progreso y nivel actual.")) {
+                    localStorage.removeItem('project_evolution_state_v1');
+                    location.reload();
+                }
+            }
+        }
+
+        // Initialize App & Background Particles
+        const app = new EvolutionSystem();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (app.state.settings.theme === 'light') {
+                document.body.classList.add('light-theme');
+            }
+            app.updateHeaderUI();
+
+            // Intro enter button
+            document.getElementById('enter-btn').onclick = () => {
+                app.playSound('levelUp');
+                document.getElementById('intro-overlay').classList.add('hidden');
+                document.getElementById('app-container').classList.add('active');
+            };
+
+            // Canvas Neural/Particle Network Background
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.onresize = resize;
+            resize();
+
+            const particles = Array.from({ length: 45 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
+                radius: Math.random() * 1.5 + 1
+            }));
+
+            function animateParticles() {
+                if (!app.state.settings.particles) {
+                    ctx.clearRect(0, 0, width, height);
+                    requestAnimationFrame(animateParticles);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.08)';
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > width) p.vx *= -1;
+                    if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 130) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+        });
+    </script>
+</body>
+</html>
